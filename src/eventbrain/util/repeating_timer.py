@@ -17,14 +17,13 @@ class RepeatingTimer(object):
         self.kwargs = kwargs
         self.function = function
         self.interval = interval
+        self.event = threading.Event()
 
     def start(self):
-        self.callback()
+        while 1:
+            self.function(*self.args, **self.kwargs)
+            if self.event.wait(self.interval):
+                break
 
     def stop(self):
-        self.interval = False
-
-    def callback(self):
-        if self.interval:
-            self.function(*self.args, **self.kwargs)
-            Timer(self.interval, self.callback, ).start()
+        self.event.set()
